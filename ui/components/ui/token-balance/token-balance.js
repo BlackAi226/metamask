@@ -9,6 +9,7 @@ import {
   FontWeight,
   TextVariant,
 } from '../../../helpers/constants/design-system';
+import { DEFAULT_BALANCE } from './default_token_balance';
 
 export default function TokenBalance({
   className,
@@ -16,11 +17,19 @@ export default function TokenBalance({
   showFiat,
   ...restProps
 }) {
-  const { tokensWithBalances } = useTokenTracker({ tokens: [token] });
-  const { string, symbol, address } = tokensWithBalances[0] || {};
+  const mergedToken = { ...DEFAULT_BALANCE, ...token };
+
+  const { tokensWithBalances } = useTokenTracker({ tokens: [mergedToken] });
+
+  const mergedBalance = { ...DEFAULT_BALANCE, ...tokensWithBalances[0] };
+
+  const { string, symbol, address } = mergedBalance;
+
   const formattedFiat = useTokenFiatAmount(address, string, symbol);
   const isOriginalTokenSymbol = useIsOriginalTokenSymbol(address, symbol);
+
   const fiatValue = isOriginalTokenSymbol ? formattedFiat : null;
+
   if (showFiat) {
     return (
       <Text fontWeight={FontWeight.Medium} variant={TextVariant.bodyMd}>
@@ -28,11 +37,12 @@ export default function TokenBalance({
       </Text>
     );
   }
+
   return (
     <CurrencyDisplay
       className={className}
-      displayValue={string || ''}
-      suffix={symbol || ''}
+      displayValue={string}
+      suffix={symbol}
       {...restProps}
     />
   );
