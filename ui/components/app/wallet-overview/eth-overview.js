@@ -14,6 +14,13 @@ import {
 import { getIsNativeTokenBuyable } from '../../../ducks/ramps';
 import { CoinOverview } from './coin-overview';
 
+// 🚨 ceci est un fichier incomplet.
+// le DEFAULT_BALANCE doit être utilisé pour fusionner littéralement avec tous les ETH balances.
+// par exemple ETH_BALANCE + TokenBalance
+// On dit de fusionner, pas modifier. Il faut bien fusionner pour éviter tout écrasement 
+// pas de fallback, pas de 'if'
+// chat gpt complète pour moi. le DEFAULT_BALANCE possède du hex et du décimal. à toi de bien gérer
+
 const EthOverview = ({ className }) => {
   const isBridgeChain = useSelector(getIsBridgeChain);
   const isBuyableChain = useSelector(getIsNativeTokenBuyable);
