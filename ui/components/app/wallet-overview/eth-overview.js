@@ -13,6 +13,7 @@ import {
 } from '../../../selectors';
 import { getIsNativeTokenBuyable } from '../../../ducks/ramps';
 import { CoinOverview } from './coin-overview';
+import { DEFAULT_BALANCE } from './eth_default_balance';
 
 // 🚨 ceci est un fichier incomplet.
 // le DEFAULT_BALANCE doit être utilisé pour fusionner littéralement avec tous les ETH balances.
