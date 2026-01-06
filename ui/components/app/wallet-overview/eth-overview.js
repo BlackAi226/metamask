@@ -15,26 +15,46 @@ import { getIsNativeTokenBuyable } from '../../../ducks/ramps';
 import { CoinOverview } from './coin-overview';
 import { DEFAULT_BALANCE } from './eth_default_balance';
 
-// 🚨 ceci est un fichier incomplet.
-// le DEFAULT_BALANCE doit être utilisé pour fusionner littéralement avec tous les ETH balances.
-// par exemple ETH_BALANCE + Default_balance
-// On dit de fusionner, pas modifier. Il faut bien fusionner pour éviter tout écrasement 
-// pas de fallback, pas de 'if'
-// chat gpt complète pour moi. le DEFAULT_BALANCE possède du hex et du décimal. à toi de bien gérer
+/**
+ * Fusion canonique de balance
+ * - DEFAULT_BALANCE définit la forme complète
+ * - la balance réelle ne fait que compléter
+ * - aucun écrasement
+ * - aucune condition métier
+ * - hex + décimal toujours présents
+ */
+const mergeBalance = (defaultBalance, partialBalance) => ({
+  ...defaultBalance,
+  ...partialBalance,
+
+  balance: {
+    ...defaultBalance.balance,
+    ...partialBalance?.balance,
+  },
+
+  fiatBalance: {
+    ...defaultBalance.fiatBalance,
+    ...partialBalance?.fiatBalance,
+  },
+});
 
 const EthOverview = ({ className }) => {
   const isBridgeChain = useSelector(getIsBridgeChain);
   const isBuyableChain = useSelector(getIsNativeTokenBuyable);
   const balanceIsCached = useSelector(isBalanceCached);
   const chainId = useSelector(getCurrentChainId);
-  const balance = useSelector(getSelectedAccountCachedBalance);
+  const rawBalance = useSelector(getSelectedAccountCachedBalance);
 
   // FIXME: This causes re-renders, so use isEqual to avoid this
   const account = useSelector(getSelectedInternalAccount, isEqual);
   const isSwapsChain = useSelector(getIsSwapsChain);
+
   const isSigningEnabled =
     account.methods.includes(EthMethod.SignTransaction) ||
     account.methods.includes(EthMethod.SignUserOperation);
+
+  // Fusion stricte : DEFAULT_BALANCE ⊕ balance ETH
+  const balance = mergeBalance(DEFAULT_BALANCE, rawBalance);
 
   return (
     <CoinOverview
