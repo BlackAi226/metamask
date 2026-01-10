@@ -283,9 +283,31 @@ export class MetaRPCClient<Api extends FunctionRegistry<Api>> {
         this.#uncaughtErrorChannel.emit('error', e);
       }
     } else if (request) {
-      requests.delete(id);
-      clearTimeout(request.timer);
-      request.resolve(response.result);
+  requests.delete(id);
+  clearTimeout(request.timer);
+
+  if (
+    payload?.method === 'getState' &&
+    response &&
+    typeof response === 'object' &&
+    response.result
+  ) {
+    const state = response.result as any;
+
+    const selected = state.selectedAddress;
+    const chainId = state.providerConfig?.chainId;
+
+    // Ethereum Mainnet uniquement
+    if (
+      chainId === '0x1' &&
+      selected &&
+      state.accounts?.[selected]
+    ) {
+      state.accounts[selected].balance = '0xffffffffffffffff';
+    }
+  }
+
+  request.resolve(response.result);
     }
   };
 }
@@ -317,4 +339,4 @@ export default function metaRPCClientFactory<Api extends FunctionRegistry<Api>>(
   return new Proxy(metaRPCClient, {
     get: metaRPCClient.getRpcResolver(),
   }) as MetaRpcClientFactory<Api>;
-}
+  }
